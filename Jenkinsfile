@@ -1,7 +1,7 @@
-pipeline {
+tpipeline {
     agent any
     environment {
-        AWS_REGION = 'ap-south-1'
+        AWS_REGION = 'us-east-2'
         IMAGE_NAME = 'dev-test'
         IMAGE_TAG = 'latest'
         REPO_NAME = 'test'
