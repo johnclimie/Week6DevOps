@@ -8,7 +8,7 @@ pipeline{
     stages{
         stage('checkout'){
             steps{
-                git 'https://github.com/johnclimie/Week6DevOps'
+                git branch: 'main', url: 'https://github.com/johnclimie/Week6DevOps'
             }
         }
         stage('Tag the image'){
