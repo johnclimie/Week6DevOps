@@ -1,35 +1,30 @@
 pipeline{
     agent any
+    environment {
+        IMAGE_NAME = 'johnclimie/Week6DevOps'
+    }
     stages{
-        stage('Checkout Code'){
+        stage('Checkout'){
             steps{
-                git branch: 'main', url: 'https://github.com/johnclimie/Week6DevOps'
+                git branch 'main', url: 'https://github.com/johnclimie/Week6DevOps'
             }
         }
-        stage('Build'){
+        stage('Build Docker image'){
             steps{
-                sh 'echo "building the app"'
+                sh "docker build -t %IMAGE_NAME%:latest ."
             }
         }
-        stage('Test'){
+        stage('Push to Dockerhub'){
             steps{
-                sh 'echo "Running tests"'
-            }
-        }
-        stage('Deploy'){
-            steps{
-                sh 'echo "deploying"'
+                withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]){
+                    sh """
+                    echo %DOCKER_PASS% | 
+                    docker login -u %DOCKER_USER% -- password-stdin
+                    docker push %IMAGE_NAME%:latest
+                    docker logout
+                    """
+                }
             }
         }
     }
-
-    post{
-        success{
-            sh 'echo "build successful"'
-        }
-        failure{
-            sh 'echo "build failed"'
-        }
-    }
-
 }
