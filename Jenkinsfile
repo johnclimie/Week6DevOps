@@ -1,7 +1,7 @@
 pipeline{
     agent any
     environment {
-        IMAGE_NAME = 'johnclimie/Week6DevOps'
+        IMAGE_NAME = 'johnclimie/week6devops'
     }
     stages{
         stage('Checkout'){
