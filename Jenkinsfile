@@ -1,20 +1,24 @@
-pipeline {
+pipeline{
     agent any
-
-    stages {
-        stage('Build') {
-            steps {
-                echo 'Building the app'
+    stages{
+        stage('Checkout Code'){
+            steps{
+                git 'https://github.com/johnclimie/Week6DevOps'
+            }
+        }
+        stage('Build'){
+            steps{
+                sh 'echo "building the app"'
             }
         }
         stage('Test'){
             steps{
-                echo 'Running test'
+                sh 'echo "Running tests"'
             }
         }
         stage('Deploy'){
             steps{
-                echo 'Deploying the app'
+                sh 'echo "deploying"'
             }
         }
     }
