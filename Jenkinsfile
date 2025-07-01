@@ -1,28 +1,47 @@
 pipeline{
     agent any
-    environment {
-        IMAGE_NAME = 'johnclimie/week6devops'
+    environment{
+        AWS_REGION = 'us-east-2'
+        IMAGE_NAME = 'dev-test'
+        REPO_NAME = 'test'
     }
     stages{
-        stage('Checkout'){
+        stage('checkout'){
             steps{
-                git branch: 'main', url: 'https://github.com/johnclimie/Week6DevOps'
+                git 'https://github.com/johnclimie/Week6DevOps'
             }
         }
-        stage('Build Docker image'){
+        stage('Tag the image'){
             steps{
-                bat "docker build -t %IMAGE_NAME%:latest ."
+                script(
+                    IMAGE_TAG='latest'
+                )
             }
         }
-        stage('Push to Dockerhub'){
+        stage('Login to ECR'){
             steps{
-                withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]){
-                    bat """
-                    docker login -u %DOCKER_USER% -p %DOCKER_PASS%
-                    docker push %IMAGE_NAME%:latest
-                    docker logout
-                    """
+                withAWS(region: "${env.AWS_REGION}", credentials: 'aws-creds') {
+                    powershell '''
+                    $ecrLogin = aws ecr get-login-password --region $env.AWS_REGION
+
+                    docker login --username AWS --password $ecrLogin https://451947743265.dkr.ecr.us-east-2.amazonaws.com
+                    '''
                 }
+            }
+        }
+        stage('Build Docker Image'){
+            steps{
+                powershell '''
+                docker build -t $env.IMAGE_NAME:$env.IMAGE_TAG .
+                docker tag $env.IMAGE_NAME:$env.IMAGE_TAG 451947743265.dkr.ecr.us-east-2.amazonaws.com/test:latest
+                '''
+            }
+        }
+        stage('Push to ECR'){
+            steps{
+                powershell '''
+                docker push 451947743265.dkr.ecr.us-east-2.amazonaws.com/test:latest
+                '''
             }
         }
     }
